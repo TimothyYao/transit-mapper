@@ -5,6 +5,7 @@ import {
   Box,
   Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -12,15 +13,20 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import Map, { Layer, Marker, Popup, Source } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const DRAWER_WIDTH = 280;
 const SHINKANSEN_SOURCE_ID = "tokaido-shinkansen-route";
 const SHINKANSEN_LAYER_ID = "tokaido-shinkansen-line";
+const DEFAULT_MAP_STYLE = "mapbox://styles/mapbox/navigation-night-v1";
 
 const mapStyles = [
+  { label: "Navigation Night", value: DEFAULT_MAP_STYLE },
   { label: "Dark", value: "mapbox://styles/mapbox/dark-v11" },
   { label: "Light", value: "mapbox://styles/mapbox/light-v11" },
   { label: "Streets", value: "mapbox://styles/mapbox/streets-v12" },
@@ -86,7 +92,10 @@ const routeLineLayer = {
 function App() {
   const mapRef = useRef(null);
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
-  const [currentMapStyle, setCurrentMapStyle] = useState(mapStyles[0].value);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [currentMapStyle, setCurrentMapStyle] = useState(DEFAULT_MAP_STYLE);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeStation, setActiveStation] = useState(null);
 
   const fitRouteBounds = useCallback(() => {
@@ -141,6 +150,48 @@ function App() {
     [],
   );
 
+  const handleDrawerToggle = useCallback(() => {
+    setIsMobileDrawerOpen((isOpen) => !isOpen);
+  }, []);
+
+  const handleDrawerClose = useCallback(() => {
+    setIsMobileDrawerOpen(false);
+  }, []);
+
+  const handleMapStyleChange = useCallback(
+    (nextMapStyle) => {
+      setCurrentMapStyle(nextMapStyle);
+      if (isSmallScreen) {
+        setIsMobileDrawerOpen(false);
+      }
+    },
+    [isSmallScreen],
+  );
+
+  const drawerContent = (
+    <>
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h6">Shinkansen Viewer</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Map Styles
+        </Typography>
+      </Box>
+      <Divider />
+      <List sx={{ py: 0 }}>
+        {mapStyles.map((styleOption) => (
+          <ListItem key={styleOption.value} disablePadding>
+            <ListItemButton
+              selected={currentMapStyle === styleOption.value}
+              onClick={() => handleMapStyleChange(styleOption.value)}
+            >
+              <ListItemText primary={styleOption.label} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </>
+  );
+
   if (!mapboxToken) {
     return (
       <Box
@@ -161,9 +212,20 @@ function App() {
   }
 
   return (
-    <Box sx={{ display: "flex", width: "100%", height: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        width: "100%",
+        height: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+      }}
+    >
       <Drawer
-        variant="permanent"
+        variant={isSmallScreen ? "temporary" : "permanent"}
+        open={isSmallScreen ? isMobileDrawerOpen : true}
+        onClose={handleDrawerClose}
+        ModalProps={{ keepMounted: true }}
         anchor="left"
         sx={{
           width: DRAWER_WIDTH,
@@ -174,25 +236,7 @@ function App() {
           },
         }}
       >
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h6">Shinkansen Viewer</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Map Styles
-          </Typography>
-        </Box>
-        <Divider />
-        <List sx={{ py: 0 }}>
-          {mapStyles.map((styleOption) => (
-            <ListItem key={styleOption.value} disablePadding>
-              <ListItemButton
-                selected={currentMapStyle === styleOption.value}
-                onClick={() => setCurrentMapStyle(styleOption.value)}
-              >
-                <ListItemText primary={styleOption.label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+        {drawerContent}
       </Drawer>
 
       <Box
@@ -211,7 +255,18 @@ function App() {
           sx={{ borderBottom: 1, borderColor: "divider" }}
         >
           <Toolbar variant="dense">
-            <Typography variant="h6" component="h1">
+            {isSmallScreen && (
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleDrawerToggle}
+                aria-label="toggle map style drawer"
+                sx={{ mr: 1 }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+            <Typography variant="h6" component="h1" noWrap>
               Tokyo ↔ Kyoto Shinkansen Route
             </Typography>
           </Toolbar>
