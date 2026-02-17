@@ -1,0 +1,36 @@
+{
+  "name": "transit-mapper",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Mobile-friendly Tokyo transit map built with React + Vite",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimothyYao/transit-mapper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TimothyYao/transit-mapper/issues"
+  },
+  "homepage": "https://github.com/TimothyYao/transit-mapper#readme",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.8",
+    "@mui/material": "^7.3.8",
+    "mapbox-gl": "^3.18.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.4",
+    "vite": "^7.3.1"
+  }
+}
