@@ -62,7 +62,7 @@ Deployment workflow file: `.github/workflows/deploy.yml`
 - Runs `npm run build`
 - Uploads `dist` artifact
 - Deploys with official GitHub Pages actions
-- Triggers on pushes to `main` and `dev`
+- Triggers on pushes to `main`
 
 ### Add repository secret
 
